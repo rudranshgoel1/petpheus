@@ -17,6 +17,7 @@ slack_event_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING_SECRET'],'/sla
 client = slack.WebClient(token=os.environ["SLACK_TOKEN"])
 
 client.chat_postMessage(channel='#pat-emojibot', text="ts working fr")
+BOT_ID = client.api_call("auth.test")['user_id']
 
 def verify_slack_signature(req):
     slack_signing_secret = os.environ['SLACK_SIGNING_SECRET'].encode()
@@ -43,6 +44,16 @@ def slack_events():
         print(f"Event received: {event}")
 
     return jsonify({'status': 'ok'})
+
+@slack_event_adapter.on('message')
+def message(payload):
+    event = payload.get('event', {})
+    channel_id = event.get('channel')
+    user_id = event.get('user')
+    text = event.get('text')
+
+    if BOT_ID != user_id:
+        client.chat_postMessage(channel=channel_id, text=text)
 
 if __name__ == "__main__":
     app.run(debug=True)
