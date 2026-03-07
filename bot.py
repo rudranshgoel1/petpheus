@@ -16,7 +16,6 @@ slack_event_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING_SECRET'],'/sla
 
 client = slack.WebClient(token=os.environ["SLACK_TOKEN"])
 
-client.chat_postMessage(channel='#pat-emojibot', text="ts working fr")
 BOT_ID = client.api_call("auth.test")['user_id']
 
 def verify_slack_signature(req):
@@ -53,9 +52,14 @@ def message(payload):
     text = event.get('text')
 
     if BOT_ID != user_id:
-        ts = event.get('ts')
-        client.reactions_add(channel=channel_id, name='loading', timestamp=ts)
-        client.chat_postMessage(channel=channel_id, thread_ts=ts, text="making emoji... (not rn it is still in development)")
+        if '##' in text:
+            return
+        elif text: 
+            ts = event.get('ts')
+            client.reactions_add(channel=channel_id, name='loading', timestamp=ts)
+            client.chat_postMessage(channel=channel_id, thread_ts=ts, text="making emoji... (not rn it is still in development)")
+        else:
+            return
 
 if __name__ == "__main__":
     app.run(debug=True)
