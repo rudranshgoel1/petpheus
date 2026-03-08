@@ -82,6 +82,8 @@ def message(payload):
                 client.reactions_add(channel=channel_id, name=text, timestamp=ts)
 
         elif files and not text:
+            ts = event.get('ts')
+
             client.reactions_add(channel=channel_id, name='wrong', timestamp=ts)
             client.chat_postMessage(channel=channel_id, thread_ts=ts, text="bro send the emoji name atleast :skulk:")
 
