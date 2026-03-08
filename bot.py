@@ -60,7 +60,7 @@ def message(payload):
     if BOT_ID != user_id:
         if '##' in text:
             return
-        elif files: 
+        elif files and text: 
             file = files[0]
 
             if file['mimetype'].startswith('image'):
@@ -68,7 +68,7 @@ def message(payload):
 
                 ts = event.get('ts')
                 client.reactions_add(channel=channel_id, name='loading', timestamp=ts)
-                client.chat_postMessage(channel=channel_id, thread_ts=ts, text="making emoji... (not rn it is still in development)")
+                client.chat_postMessage(channel=channel_id, thread_ts=ts, text="making emoji...")
 
                 r = requests.get("https://patpatgifmaker.vercel.app/api/petpet", params={
                     "image_url": image_url,
@@ -76,9 +76,14 @@ def message(payload):
                 })
                 gif_url = r.json()["gif_url"]
 
-                client.chat_postMessage(channel=channel_id, thread_ts=ts, text=gif_url)
+                client.admin_emoji_add(name=text, url=gif_url)
+                client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"emoji added :{text}:")
                 client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
-                client.reactions_add(channel=channel_id, name='white_check_mark', timestamp=ts)
+                client.reactions_add(channel=channel_id, name=text, timestamp=ts)
+
+        elif files and not text:
+            client.reactions_add(channel=channel_id, name='wrong', timestamp=ts)
+            client.chat_postMessage(channel=channel_id, thread_ts=ts, text="bro send the emoji name atleast :skulk:")
 
         else:
             return
