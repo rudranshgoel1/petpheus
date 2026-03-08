@@ -70,12 +70,15 @@ def message(payload):
                 client.reactions_add(channel=channel_id, name='loading', timestamp=ts)
                 client.chat_postMessage(channel=channel_id, thread_ts=ts, text="making emoji... (not rn it is still in development)")
 
-
                 r = requests.get("https://patpatgifmaker.vercel.app/api/petpet", params={
                     "image_url": image_url,
                     "slack_token": os.environ["SLACK_TOKEN"],
                 })
                 gif_url = r.json()["gif_url"]
+
+                client.chat_postMessage(channel=channel_id, thread_ts=ts, text=gif_url)
+                client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
+                client.reactions_add(channel=channel_id, name='white_check_mark', timestamp=ts)
 
         else:
             return
