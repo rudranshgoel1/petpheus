@@ -87,20 +87,39 @@ def message(payload):
                 
                 data = {
                     "token": os.environ["USER_SLACK_TOKEN"],
-                    "mode": "data",
                     "name": text,
+                    "mode": "url",
+                    "url": gif_url,
+                    "search_args": "{}",
+                    "_x_reason": "add-custom-emoji-dialog-content",
+                    "_x_mode": "online",
+                    "_x_sonic": "true",
+                    "_x_app_name": "client",
                 }
 
                 headers = {
-                    "Cookie": f"d={usercookie}"
+                    "accept": "*/*",
+                    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+                    "priority": "u=1, i",
+                    "sec-ch-ua": '"Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"',
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": '"macOS"',
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-site",
+                }
+                
+                cookies = {
+                    "utm": "{}",
+                    "b": os.environ["USER_COOKIE_B"],
+                    "tz": "330",
+                    "c": '{"banner_homepage_slackbot":1}',
+                    "d-s": "1773046862",
+                    "x": os.environ["USER_COOKIE_X"],
+                    "d": os.environ["USER_COOKIE_D"],
                 }
 
-                emojir = requests.post(
-                    f"https://{workspaceid}.slack.com/api/emoji.add",
-                    headers=headers,
-                    data=data,
-                    files=files
-                )
+                emojir = requests.post(f"https://{workspaceid}.slack.com/api/emoji.add" + os.environ["URL_PARAMS"], headers=headers, cookies=cookies, data=data)
                 
                 emojir_json = emojir.json()
                 print(emojir_json)
