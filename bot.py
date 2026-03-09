@@ -17,7 +17,6 @@ slack_event_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING_SECRET'],'/sla
 
 client = slack.WebClient(token=os.environ["SLACK_TOKEN"])
 userclient = slack.WebClient(token=os.environ["USER_SLACK_TOKEN"])
-usercookie = os.environ["USER_COOKIE"]
 workspaceid = os.environ["WORKSPACE_ID"]
 
 BOT_ID = client.api_call("auth.test")['user_id']
