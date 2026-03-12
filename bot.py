@@ -161,7 +161,7 @@ def message(payload):
             file = files[0]
             
             existing = client.api_call("emoji.list")
-            if emoji_name in existing.get('emoji', {}):
+            if text in existing.get('emoji', {}):
                 client.chat_postMessage(channel=channel_id, thread_ts=event.get('ts'), text="emoji with that name already exists :thinkies:")
                 client.chat_postMessage(channel=channel_id, thread_ts=event.get('ts'), text="uhh send this again with another name")
                 return
