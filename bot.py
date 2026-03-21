@@ -78,7 +78,7 @@ def message(payload):
 
     if BOT_ID != user_id:
         ping_match = re.match(r'<@([A-Z0-9]+)>\s+(\S+)$', text.strip())
-        emoji_pet_match = re.match(r':([a-zA-Z0-9])_-]+):\s+(\S+)$', text.strip())
+        emoji_pet_match = re.match(r':([a-zA-Z0-9_-]+):\s+(\S+)$', text.strip())
         
         if event.get('bot_id') or event.get('subtype') == 'bot_message':
             return
