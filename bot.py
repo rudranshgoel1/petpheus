@@ -77,6 +77,13 @@ def message(payload):
     files = event.get('files', [])
 
     if BOT_ID != user_id:
+        processed_events = set()
+        
+        ts = event.get('ts')
+        if ts in processed_events:
+            return
+        processed_events.add(ts)
+        
         ping_match = re.match(r'<@([A-Z0-9]+)>\s+(\S+)$', text.strip())
         emoji_pet_match = re.match(r':([a-zA-Z0-9_-]+):\s+(\S+)$', text.strip())
         
