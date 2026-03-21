@@ -279,6 +279,7 @@ def message(payload):
             
             client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
             client.reactions_add(channel=channel_id, name=new_name, timestamp=ts)
+            save_emoji(new_name, user_id)
             
             client.chat_postMessage(
                 channel=channel_id,
@@ -378,6 +379,7 @@ def message(payload):
 
                 client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
                 client.reactions_add(channel=channel_id, name=emoji_name, timestamp=ts)
+                save_emoji(emoji_name, user_id)
                 
                 client.chat_postMessage(
                 channel=channel_id,
@@ -473,6 +475,7 @@ def message(payload):
 
                     client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
                     client.reactions_add(channel=channel_id, name=text, timestamp=ts)
+                    save_emoji(emoji_name, user_id)
                     
                     client.chat_postMessage(
                     channel=channel_id,
