@@ -92,14 +92,15 @@ def message(payload):
             ts = event.get('ts')
             
             existing = client.api_call("emoji.list")
-            all_emoji = existing.get('emoji', {})
+            emoji_name = existing.get('emoji', {})
             
-            if new_name in all_emoji:
+            if new_name in emoji_name:
                 client.chat_postMessage(channel=channel_id, thread_ts=ts, text="emoji with that name already exists :thinkies:")
                 client.chat_postMessage(channel=channel_id, thread_ts=ts, text="uhh send this again with another name")
                 return
             
-            emoji_url = all_emoji.get(source)
+            emoji_url = emoji_name.get(source)
+            
             
             if not emoji_url:
                 client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"couldn't find :{source}: emoji in the workspace brotato chip :loll:")
@@ -107,7 +108,8 @@ def message(payload):
             
             while emoji_url and emoji_url.startswith('alias:'):
                 alias = emoji_url[len('alias:'):]
-                emoji_url = all_emoji.get(alias)
+                emoji_url = emoji_name.get(alias)
+                
                 
             if not emoji_url:
                 client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"couldn't resolve :{source}: alias :cryin:")
@@ -166,6 +168,10 @@ def message(payload):
 
             emojir_json = emojir.json()
             print(emojir_json)
+            
+            client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"emoji added :{new_name}:")
+            client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
+            client.reactions_add(channel=channel_id, name=new_name, timestamp=ts)
         
         elif ping_match and not files:
             
@@ -184,6 +190,9 @@ def message(payload):
                 if not pfp_url:
                     client.chat_postMessage(channel=channel_id, thread_ts=ts, text="couldn't find their pfp :cryin:")
                     return
+                
+                client.reactions_add(channel=channel_id, name='loading', timestamp=ts)
+                client.chat_postMessage(channel=channel_id, thread_ts=ts, text="making emoji...")
 
                 r = requests.get("https://patpatgifmaker.vercel.app/api/petpet", params={
                     "image_url": pfp_url,
@@ -236,9 +245,9 @@ def message(payload):
                 emojir_json = emojir.json()
                 print(emojir_json)
 
-                client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"emoji added :{new_name}:")
+                client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"emoji added :{emoji_name}:")
                 client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
-                client.reactions_add(channel=channel_id, name=new_name, timestamp=ts)
+                client.reactions_add(channel=channel_id, name=emoji_name, timestamp=ts)
 
         elif files and text: 
             file = files[0]
@@ -321,7 +330,7 @@ def message(payload):
         elif text and not files and not ping_match and not emoji_pet_match:
             ts = event.get('ts')
             if "petpheus-version" in text.lower():
-                client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"you are using petpheus {version} :yeah:")
+                client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"you are using petpheus v{version} :yeah:")
 
         else:
             return
