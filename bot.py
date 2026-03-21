@@ -2,7 +2,7 @@ import slack
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
 from slackeventsapi import SlackEventAdapter
 import hashlib
 import hmac
@@ -50,6 +50,25 @@ def slack_events():
         event = data.get('event', {})
         print(f"Event received: {event}")
 
+    return jsonify({'status': 'ok'})
+
+@app.route('/slack/interactions', methods=['POST'])
+def interactions():
+    if not verify_slack_signature(request):
+        return "invalid signature", 403
+    
+    payload = json.loads(request.form.get('payload'))
+    
+    if payload.get('type') == 'block_actions':
+        action = payload['actions'][0]
+        
+        if action['action_id'] == 'thank_petpheus':
+            user = action['value']
+            channel_id = payload['container']['channel_id']
+            thread_ts = payload['container']['message_ts']
+            
+            client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=f"petpheus pets <@{user}> :yayayayayay:")
+    
     return jsonify({'status': 'ok'})
 
 def fix_emoji_name(name):
@@ -176,9 +195,31 @@ def message(payload):
             emojir_json = emojir.json()
             print(emojir_json)
             
-            client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"emoji added :{new_name}:")
             client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
             client.reactions_add(channel=channel_id, name=new_name, timestamp=ts)
+            
+            client.chat_postMessage(
+                channel=channel_id,
+                thread_ts=ts,
+                text=f"emoji added :{new_name}:",
+                blocks=[
+                    {
+                        "type": "section",
+                        "text": {"type": "mrkdwn", "text": f"emoji added :{new_name}: :yeah:"}
+                    },
+                    {
+                        "type": "actions",
+                        "elements": [
+                            {
+                                "type": "button",
+                                "text": {"type": "plain_text", "text": "thanks petpheus 🐾"},
+                                "action_id": "thank_petpheus",
+                                "value": user_id
+                            }
+                        ]
+                    }
+                ]
+            )
         
         elif ping_match and not files:
             
@@ -252,9 +293,31 @@ def message(payload):
                 emojir_json = emojir.json()
                 print(emojir_json)
 
-                client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"emoji added :{emoji_name}:")
                 client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
                 client.reactions_add(channel=channel_id, name=emoji_name, timestamp=ts)
+                
+                client.chat_postMessage(
+                channel=channel_id,
+                thread_ts=ts,
+                text=f"emoji added :{emoji_name}:",
+                blocks=[
+                    {
+                        "type": "section",
+                        "text": {"type": "mrkdwn", "text": f"emoji added :{emoji_name}: :yeah:"}
+                    },
+                    {
+                        "type": "actions",
+                        "elements": [
+                            {
+                                "type": "button",
+                                "text": {"type": "plain_text", "text": "thanks petpheus 🐾"},
+                                "action_id": "thank_petpheus",
+                                "value": user_id
+                            }
+                        ]
+                    }
+                ]
+            )
 
         elif files and text: 
             file = files[0]
@@ -324,9 +387,31 @@ def message(payload):
                     emojir_json = emojir.json()
                     print(emojir_json)
 
-                    client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"emoji added :{text}:")
                     client.reactions_remove(channel=channel_id, name='loading', timestamp=ts)
                     client.reactions_add(channel=channel_id, name=text, timestamp=ts)
+                    
+                    client.chat_postMessage(
+                    channel=channel_id,
+                    thread_ts=ts,
+                    text=f"emoji added :{emoji_name}:",
+                    blocks=[
+                        {
+                            "type": "section",
+                            "text": {"type": "mrkdwn", "text": f"emoji added :{emoji_name}: :yeah:"}
+                        },
+                        {
+                            "type": "actions",
+                            "elements": [
+                                {
+                                    "type": "button",
+                                    "text": {"type": "plain_text", "text": "thanks petpheus 🐾"},
+                                    "action_id": "thank_petpheus",
+                                    "value": user_id
+                                }
+                            ]
+                        }
+                    ]
+                )
 
         elif files and not text:
             ts = event.get('ts')
