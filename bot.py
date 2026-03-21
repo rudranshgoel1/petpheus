@@ -19,6 +19,7 @@ slack_event_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING_SECRET'],'/sla
 client = slack.WebClient(token=os.environ["SLACK_TOKEN"])
 userclient = slack.WebClient(token=os.environ["USER_SLACK_TOKEN"])
 workspaceid = os.environ["WORKSPACE_ID"]
+version = os.environ["VERSION"]
 
 BOT_ID = client.api_call("auth.test")['user_id']
 
@@ -316,6 +317,11 @@ def message(payload):
 
             client.reactions_add(channel=channel_id, name='wrong', timestamp=ts)
             client.chat_postMessage(channel=channel_id, thread_ts=ts, text="bro send the emoji name atleast :skulk:")
+            
+        elif text and not files and not ping_match and not emoji_pet_match:
+            ts = event.get('ts')
+            if "petpheus-version" in text.lower():
+                client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f"you are using petpheus {version} :yeah:")
 
         else:
             return
