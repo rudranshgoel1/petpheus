@@ -18,6 +18,8 @@ load_dotenv(dotenv_path=env_path)
 app = Flask(__name__)
 slack_event_adapter = SlackEventAdapter(os.environ['SLACK_SIGNING_SECRET'],'/slack/events',app)
 
+clicked_users = {}
+
 client = slack.WebClient(token=os.environ["SLACK_TOKEN"])
 userclient = slack.WebClient(token=os.environ["USER_SLACK_TOKEN"])
 workspaceid = os.environ["WORKSPACE_ID"]
@@ -90,6 +92,14 @@ def interactions():
             user = payload['user']['id']
             channel_id = payload['container']['channel_id']
             thread_ts = payload['container']['message_ts']
+            
+            if thread_ts not in clicked_users:
+                clicked_users[thread_ts] = set()
+            
+            if user in clicked_users[thread_ts]:
+                client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=f"<@{user} already thanked petpheus, but petpheus still pets them :yayayayayay:")
+            
+            clicked_users[thread_ts].add(user)
             
             client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=f"petpheus pets <@{user}> :yayayayayay:")
         
