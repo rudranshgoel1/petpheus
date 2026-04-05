@@ -87,7 +87,7 @@ def interactions():
         action = payload['actions'][0]
         
         if action['action_id'] == 'thank_petpheus':
-            user = action['value']
+            user = payload['user']['id']
             channel_id = payload['container']['channel_id']
             thread_ts = payload['container']['message_ts']
             
