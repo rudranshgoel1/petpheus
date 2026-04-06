@@ -97,7 +97,7 @@ def interactions():
                 clicked_users[thread_ts] = set()
             
             if user in clicked_users[thread_ts]:
-                client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=f"<@{user} already thanked petpheus, but petpheus still pets them :yayayayayay:")
+                return jsonify({'pet': 'alr done'})
             
             clicked_users[thread_ts].add(user)
             
@@ -178,6 +178,14 @@ def get_user_pfp(user_id):
             return profile[size]
     return None        
 
+processed_events = set()
+
+def same_thread_check(event):
+    ts = event.get('ts')
+    if ts in processed_events:
+        return
+    processed_events.add(ts)
+
 @slack_event_adapter.on('message')
 def message(payload):
     print(payload)
@@ -188,12 +196,13 @@ def message(payload):
     files = event.get('files', [])
 
     if BOT_ID != user_id:
-        processed_events = set()
         
-        ts = event.get('ts')
-        if ts in processed_events:
+        if event.get('thread_ts') and event.get('thread_ts') != event.get('ts'):
             return
-        processed_events.add(ts)
+        if event.get('bot_id') or event.get('subtype') == 'bot_message':
+            return
+        
+        same_thread_check(event=event)
         
         ping_match = re.match(r'<@([A-Z0-9]+)>\s+(\S+)$', text.strip())
         emoji_pet_match = re.match(r':([a-zA-Z0-9_-]+):\s+(\S+)$', text.strip())
