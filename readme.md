@@ -36,4 +36,4 @@ example: `:sob: pet-sob`
 ## credits
 - [rudransh goel](https://rudranshgoel.com/) a.k.a stolen_username - made the whole bot
 
-- [Matthias Lubbertsen](https://matthias.is-a.dev/) - made the logo (tysm!!)
+- [Matthias Lubbertsen](https://matthiaz.dev/) - made the logo (tysm!!)
